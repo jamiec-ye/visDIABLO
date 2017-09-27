@@ -10,16 +10,18 @@
 #' @import visNetwork
 #' @import plotly
 #' @import ggmixOmics
-#' @import tidyverse
 #' @import network
 #' @import ggnetwork
 #' @import sna
 #' @import biomaRt
 #' @import sear
+#' @import tidyverse
 #' @export
 
-visualize <- function(model) {
-  M <- convertHGNC(model)
+visualize <- function(model, rename = F) {
+  if (rename == T){
+    M <- convertHGNC(model)
+  }
   model1 <- M
   model2 <- M
 

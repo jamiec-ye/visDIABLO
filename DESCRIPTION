@@ -17,12 +17,12 @@ Imports: shiny,
     visNetwork,
     plotly,
     ggmixOmics,
-    tidyverse,
     network,
     ggnetwork,
     sna,
     biomaRt,
-    sear
+    sear,
+    tidyverse
 Remotes: cashoes/ggmixOmics,
     cashoes/sear
 RoxygenNote: 6.0.1

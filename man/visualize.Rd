@@ -4,7 +4,7 @@
 \alias{visualize}
 \title{Visualize}
 \usage{
-visualize(model)
+visualize(model, rename = F)
 }
 \arguments{
 \item{model}{A DIABLO model object.}
