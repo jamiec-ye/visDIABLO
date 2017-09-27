@@ -1,9 +1,25 @@
-# Visualize
+#' Visualize
+#' @author Jamie C. Ye
 #
-# This is a function named 'visualize'
-# which launches a web application that explores DIABLO models.
+#' @param model A DIABLO model object.
+#' @import shiny
+#' @import shinythemes
+#' @import shinydashboard
+#' @import DT
+#' @import igraph
+#' @import visNetwork
+#' @import plotly
+#' @import ggmixOmics
+#' @import tidyverse
+#' @import network
+#' @import ggnetwork
+#' @import sna
+#' @import biomaRt
+#' @import sear
+#' @export
 
 visualize <- function(model) {
+  M <- convertHGNC(model)
   model1 <- M
   model2 <- M
 

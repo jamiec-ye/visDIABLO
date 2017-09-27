@@ -23,18 +23,6 @@ Imports: shiny,
     sna,
     biomaRt,
     sear
-Depends: shiny,
-    shinythemes,
-    shinydashboard,
-    DT,
-    igraph,
-    visNetwork,
-    plotly,
-    ggmixOmics,
-    tidyverse,
-    network,
-    ggnetwork,
-    sna,
-    biomaRt,
-    sear
+Remotes: cashoes/ggmixOmics,
+    cashoes/sear
 RoxygenNote: 6.0.1
