@@ -1,26 +1,33 @@
-# Gene Set Enrichment Analysis using
-# Simple (effin') Enrichment Analysis in R (sear)
+#' Gene set enrichment analysis
+#
+#' @param geneSet A list of gene symbols.
 genesetEnrichment <- function(geneSet) {
+  # Get dataset
+  collections <- sear::collections
   candidates <- geneSet
 
+  # Perform 'sear'
   result <- sear::sear(candidates)
   profile <- result[order(result$fdr),]
 }
 
-# Rename features using HGNC symbols
-# Must be in following formats:
-# Transciptomics: XXXX\nENSGXXXXXXXXXXX
-# Proteomics: XXXXXX_XXXXXXXXXX_XXXXXX_(HGNC or NA)
-# Luminex Cytokine: Premade table
+#' Rename features using HGNC symbols
+#' Must be in following formats:
+#' Transciptomics: XXXX/nENSGXXXXXXXXXXX
+#' Proteomics: XXXXXX_XXXXXXXXXX_XXXXXX_(HGNC or NA)
+#' Luminex Cytokine: Premade table
 #
+#' @param model A DIABLO model object.
+#' @import
+
 convertHGNC <- function(model) {
   M <- model
   # Rename transciptomics
   mart <- biomaRt::useEnsembl(biomart = "ensembl", dataset = "hsapiens_gene_ensembl")
   transcriptomeEnsembl <- colnames(M$X$`Transcriptomics`) %>%
-    map(strsplit, "\n") %>%
-    map(1) %>%
-    map(last) %>%
+    purrr::map(strsplit, "\n") %>%
+    purrr::map(1) %>%
+    purrr::map(dplyr::last) %>%
     unlist()
   transcriptomeEnsembl <- as.matrix(transcriptomeEnsembl)
   colnames(transcriptomeEnsembl) <- "ensembl_gene_id"
@@ -45,8 +52,8 @@ convertHGNC <- function(model) {
 
   # Parse by '_'
   allProtein <- names %>%
-    map(strsplit, '_') %>%
-    map(1)
+    purrr::map(strsplit, '_') %>%
+    purrr::map(1)
 
   # att <- biomaRt::listAttributes(maRt)
   # att[grep('uniprot', ignore.case = T, biomaRt::listAttributes(maRt)[ , 1]), ]
@@ -55,24 +62,24 @@ convertHGNC <- function(model) {
   table <- biomaRt::getBM(attributes = c('uniprotswissprot', 'hgnc_symbol'),
                           filters = 'uniprotswissprot',
                           values = allProtein,
-                          mart = maRt)
+                          mart = mart)
 
   # Remove last string
   lookup <- allProtein %>%
-    map(head, -1)
+    purrr::map(head, -1)
 
   # Join lookup and table in a dataframe
   match <- lookup %>%
     lapply(function(x) {
       df <- data.frame(uniprotswissprot = x)
       df %>%
-        left_join(table)
+        dplyr::left_join(table)
     })
 
 
   # Create hgncSymbol vector
   hgncSymbols <- allProtein %>%
-    map(last) %>%
+    purrr::map(dplyr::last) %>%
     unlist()
   missingNames <- which(hgncSymbols == 'NA')
 
@@ -145,8 +152,15 @@ convertHGNC <- function(model) {
   M
 }
 
-# If there is a match, returns the index of the match in the PPI data in a vector of length 'edges'
-# 'edges' and 'data' both two column data frames
+
+#' Match with existing Protein-Protein Interaction data
+#
+#' If there is a match, returns the index of the match in the PPI data in a vector of length 'edges'
+#' 'edges' and 'data' both two column data frames
+#
+#' @param edges A data frame consisting of two proteins that have an edge.
+#' @param data A data frame consisting of two columns of proteins that interact
+
 matchPPI <- function(edges, data){
   matches <- prodlim::row.match(edges, data)
 }

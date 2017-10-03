@@ -37,3 +37,21 @@
 #' @examples
 #' data(proteinMapping)
 "proteinMapping"
+
+#' List of Protein-Protein Interactions
+#'
+#' @docType data
+#'
+#' @usage data(PPIList)
+#'
+#' @format TODO
+#'
+#' @keywords datasets
+#'
+#' @references TODO
+#'
+#' @source TODO
+#'
+#' @examples
+#' data(PPIList)
+"PPIList"

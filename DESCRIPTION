@@ -1,11 +1,13 @@
 Package: visDIABLO
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Interactive web-based visualization application for DIABLO models
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Authors@R: person("Ye", "Jamie", email = "jamiec.ye@gmail.com",
+  role = c("aut", "cre"))
+Description: Interactive web application initially developed with 'Shiny' 
+    for the EPIC (Expanded Program on Immunization) – HIPC (Human Immunology 
+    Project Consortium) vaccine initiative for biologists and clinical
+    scientists.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
@@ -21,6 +23,7 @@ Imports: shiny,
     ggnetwork,
     sna,
     biomaRt,
+    prodlim,
     sear,
     tidyverse
 Remotes: cashoes/ggmixOmics,

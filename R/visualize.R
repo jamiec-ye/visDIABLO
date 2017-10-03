@@ -13,8 +13,6 @@
 #' @import network
 #' @import ggnetwork
 #' @import sna
-#' @import biomaRt
-#' @import sear
 #' @import tidyverse
 #' @export
 
@@ -25,7 +23,7 @@ visualize <- function(model, rename = F) {
   model1 <- M
   model2 <- M
 
-  # Get component names
+  # Get component names ----
   dataNames <- names(M$X)
   nEntries <- length(dataNames)
   nComp <- unique(M$ncomp)
@@ -33,52 +31,6 @@ visualize <- function(model, rename = F) {
   # Params ----
   geneEnrichment <- TRUE
   PPIIntegration <- FALSE
-
-
-  # asthma_mixDIABLO <- load("C:\\Users\\Jamie\\Downloads\\asthma.RDATA")
-  # cellsParse <- cells[, 15:23]
-  #
-  # data <- list('Cell-type Composition' = cellsParse,
-  #              'Transcriptomics' = gene.module,
-  #              'Metabolomics' = metabolite.module)
-  #
-  # colnames(data$`Cell-type Composition`) <- make.names(colnames(data$`Cell-type Composition`), unique=TRUE)
-  # colnames(data$`Transcriptomics`) <- make.names(colnames(data$`Transcriptomics`), unique=TRUE)
-  # colnames(data$`Metabolomics`) <- make.names(colnames(data$`Metabolomics`), unique=TRUE)
-  #
-  # lapply(data,dim)
-  #
-  # Y = design$time
-  # summary(Y)
-  #
-  # # parameter choice
-  # ncomp = 2
-  # # designX = matrix(1, ncol = length(data), nrow = length(data), dimnames = list(names(data), names(data)))
-  # # diag(designX) = 0
-  # designX <- matrix(c(0, 0, 1,
-  #                     0, 0, 1,
-  #                     1, 1, 0), nrow = 3, ncol = 3)
-  #
-  # # tuning
-  # # test.keepX = list ('Cell-type Composition' = c(5:9, seq(10, 18, 2)),
-  # #                    'Transcriptomics' = c(5:9, seq(10, 18, 2)),
-  # #                    'Metabolomics' = c(5:9, seq(10, 18, 2)))
-  # # tune.TCGA = tune.block.splsda(X = data, Y = Y, ncomp = ncomp,
-  # #                               test.keepX = test.keepX, design = design)
-  #
-  # # list.keepX = list('Cell-type Composition' = c(7,12), 'Transcriptomics' = c(5,25), 'Metabolomics' = c(5,16))
-  # list.keepX = list('Cell-type Composition' = rep(1, ncomp), 'Transcriptomics' = rep(5, ncomp), 'Metabolomics' = rep(5, ncomp))
-  # keepX = list.keepX
-  #
-  # A <- purrr::map(data, mixOmics::withinVariation, as.data.frame(design$sample))
-  #
-  # sgccda.res = mixOmics::block.splsda(X = A, Y = Y, ncomp = 2,
-  #                                     keepX = keepX, design = designX, scheme = "factorial",
-  #                                     mode = "regression", bias = TRUE)
-  # M <- sgccda.res
-  # model1 <- M
-  # model2 <- M
-
 
   # UI ----
 
