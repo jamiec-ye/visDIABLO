@@ -505,7 +505,7 @@ visualize <- function(model, rename = F) {
       # Assume ordered
       keeps <- 1:unique(M$ncomp) %>%
         purrr::map(~ mixOmics::selectVar(M, comp = .)) %>%
-        at_depth(2, ~ .x[[1]]) %>%
+        purrr::at_depth(2, ~ .x[[1]]) %>%
         transpose() %>%
         purrr::map(reduce, union) %>%
         purrr::map(length) %>%
