@@ -18,7 +18,6 @@ genesetEnrichment <- function(geneSet) {
 #' Luminex Cytokine: Premade table
 #
 #' @param model A DIABLO model object.
-#' @import
 
 convertHGNC <- function(model) {
   M <- model

@@ -20,11 +20,12 @@ Imports: shiny,
     plotly,
     ggmixOmics,
     network,
-    ggnetwork,
     sna,
+    ggnetwork,
     biomaRt,
     prodlim,
     sear,
+    ggplot2,
     tidyverse
 Remotes: cashoes/ggmixOmics,
     cashoes/sear

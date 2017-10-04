@@ -11,8 +11,9 @@
 #' @import plotly
 #' @import ggmixOmics
 #' @import network
-#' @import ggnetwork
 #' @import sna
+#' @import ggnetwork
+#' @import ggplot2
 #' @import tidyverse
 #' @export
 
@@ -506,8 +507,8 @@ visualize <- function(model, rename = F) {
       keeps <- 1:unique(M$ncomp) %>%
         purrr::map(~ mixOmics::selectVar(M, comp = .)) %>%
         purrr::at_depth(2, ~ .x[[1]]) %>%
-        transpose() %>%
-        purrr::map(reduce, union) %>%
+        purrr::transpose() %>%
+        purrr::map(purrr::reduce, union) %>%
         purrr::map(length) %>%
         head(-1)
 
@@ -617,11 +618,14 @@ visualize <- function(model, rename = F) {
       })
 
       # plot graph
-      plot <- ggplot(nodesNedges, aes(x = x, y= y, xend = xend, yend = yend, text = vertex.names)) +
-        geom_edges(size = 0.1, color = "grey50") +
-        geom_nodes(aes(fill = group), size = 6, shape = 21, color = 'white') +
+      # library dependency bug
+      library(ggnetwork)
+
+      plot <- ggplot2::ggplot(nodesNedges, ggplot2::aes(x = x, y= y, xend = xend, yend = yend, text = vertex.names)) +
+        ggnetwork::geom_edges(size = 0.1, color = "grey50") +
+        ggnetwork::geom_nodes(ggplot2::aes(fill = group), size = 6, shape = 21, color = 'white') +
         viridis::scale_fill_viridis('', discrete = TRUE) +
-        theme_void()
+        ggplot2::theme_void()
 
       ggplotly(plot, tooltip = "text") %>%
         layout(dragmode = "lasso")
