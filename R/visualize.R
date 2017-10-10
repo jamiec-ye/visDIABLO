@@ -111,10 +111,10 @@ visualize <- function(model, rename = F) {
                                        selected = 1),
                            br(),
                            radioButtons("compXComp", label = h3("X Component"),
-                                        choices = list(1, 2, 3, 4),
+                                        choices = as.list(1:nComp),
                                         selected = 1),
                            radioButtons("compYComp", label = h3("Y Component"),
-                                        choices = list(1, 2, 3, 4),
+                                        choices = as.list(1:nComp),
                                         selected = 2),
                            br(),
                            checkboxInput("showIndNames", label = "Show Ind. Names", value = FALSE),
@@ -153,7 +153,7 @@ visualize <- function(model, rename = F) {
                                        selected = 1),
                            br(),
                            selectInput("selectComp", label = h3("Select component"),
-                                       choices = list("Component 1", "Component 2", "Component 3", "Component 4"),
+                                       choices = as.list(1:nComp),
                                        selected = 1),
                            p(
                              class = "text-muted",
@@ -193,10 +193,10 @@ visualize <- function(model, rename = F) {
                                        selected = 1),
                            br(),
                            radioButtons("compXBi", label = h3("X Component"),
-                                        choices = list(1, 2, 3, 4),
+                                        choices = as.list(1:nComp),
                                         selected = 1),
                            radioButtons("compYBi", label = h3("Y Component"),
-                                        choices = list(1, 2, 3, 4),
+                                        choices = as.list(1:nComp),
                                         selected = 2),
                            br(),
                            checkboxInput("showIndNames", label = "Show Ind. Names", value = FALSE),
@@ -267,6 +267,8 @@ visualize <- function(model, rename = F) {
                            verbatimTextOutput("brushNet")
                        ),
                        box(width = NULL,
+                           valueBoxOutput("hoverNetM", width = 6),
+                           valueBoxOutput("clickNetM", width = 6),
                            valueBoxOutput("density"),
                            valueBoxOutput("transitivity"),
                            valueBoxOutput("modularity")
@@ -369,11 +371,12 @@ visualize <- function(model, rename = F) {
     plotVar <- mixOmics::plotVar(model1)
 
     # Get rownames for each Block
-    flowCytometry <- row.names(subset(plotVar, Block == "Flow Cytometry"))
-    luminexCytokine <- row.names(subset(plotVar, Block == "Luminex Cytokine"))
-    metabolomics <- row.names(subset(plotVar, Block == "Metabolomics"))
-    proteomics <- row.names(subset(plotVar, Block == "Proteomics"))
-    transcriptomics <- row.names(subset(plotVar, Block == "Transcriptomics"))
+    # legacy
+    # flowCytometry <- row.names(subset(plotVar, Block == "Flow Cytometry"))
+    # luminexCytokine <- row.names(subset(plotVar, Block == "Luminex Cytokine"))
+    # metabolomics <- row.names(subset(plotVar, Block == "Metabolomics"))
+    # proteomics <- row.names(subset(plotVar, Block == "Proteomics"))
+    # transcriptomics <- row.names(subset(plotVar, Block == "Transcriptomics"))
 
     output$var1 <- renderPlotly({
       p <- get(input$selectDataVar, ggmixOmics::ggvarplot(M))
@@ -383,68 +386,20 @@ visualize <- function(model, rename = F) {
     })
 
     output$varTable <- DT::renderDataTable({
-      if(input$selectComp == "Component 1"){
-        table <- as.matrix(model1$loadings$`Flow cytometry`[,'comp 1'])
-        table <- rbind(table, as.matrix(model1$loadings$'Luminex cytokine'[,'comp 1']))
-        table <- rbind(table, as.matrix(model1$loadings$'Metabolomics'[,'comp 1']))
-        table <- rbind(table, as.matrix(model1$loadings$'Proteomics'[,'comp 1']))
-        table <- rbind(table, as.matrix(model1$loadings$'Transcriptomics'[,'comp 1']))
+      compN <- paste(c("comp ", input$selectComp), sep="", collapse="")
+      table <- as.matrix(model1$loadings[[1]][,compN])
+        for(i in 2:nEntries){
+          table <- rbind(table, as.matrix(model1$loadings[[i]][,compN]))
+        }
         if(input$compare == TRUE){
-          tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,'comp 1'])
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,'comp 1']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,'comp 1']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,'comp 1']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,'comp 1']))
+          tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,compN])
+          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,compN]))
+          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,compN]))
+          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,compN]))
+          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,compN]))
           table <- cbind(as.matrix(table), as.matrix(tempTable))
         }
         table
-      }
-      else if(input$selectComp == "Component 2"){
-        table <- as.matrix(model1$loadings$`Flow cytometry`[,'comp 2'])
-        table <- rbind(table, as.matrix(model1$loadings$'Luminex cytokine'[,'comp 2']))
-        table <- rbind(table, as.matrix(model1$loadings$'Metabolomics'[,'comp 2']))
-        table <- rbind(table, as.matrix(model1$loadings$'Proteomics'[,'comp 2']))
-        table <- rbind(table, as.matrix(model1$loadings$'Transcriptomics'[,'comp 2']))
-        if(input$compare == TRUE){
-          tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,'comp 2'])
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,'comp 2']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,'comp 2']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,'comp 2']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,'comp 2']))
-          table <- cbind(as.matrix(table), as.matrix(tempTable))
-        }
-      }
-      else if(input$selectComp == "Component 3"){
-        table <- as.matrix(model1$loadings$`Flow cytometry`[,'comp 3'])
-        table <- rbind(table, as.matrix(model1$loadings$'Luminex cytokine'[,'comp 3']))
-        table <- rbind(table, as.matrix(model1$loadings$'Metabolomics'[,'comp 3']))
-        table <- rbind(table, as.matrix(model1$loadings$'Proteomics'[,'comp 3']))
-        table <- rbind(table, as.matrix(model1$loadings$'Transcriptomics'[,'comp 3']))
-        if(input$compare == TRUE){
-          tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,'comp 3'])
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,'comp 3']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,'comp 3']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,'comp 3']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,'comp 3']))
-          table <- cbind(as.matrix(table), as.matrix(tempTable))
-        }
-      }
-      else if(input$selectComp == "Component 4"){
-        table <- as.matrix(model1$loadings$`Flow cytometry`[,'comp 4'])
-        table <- rbind(table, as.matrix(model1$loadings$'Luminex cytokine'[,'comp 4']))
-        table <- rbind(table, as.matrix(model1$loadings$'Metabolomics'[,'comp 4']))
-        table <- rbind(table, as.matrix(model1$loadings$'Proteomics'[,'comp 4']))
-        table <- rbind(table, as.matrix(model1$loadings$'Transcriptomics'[,'comp 4']))
-        if(input$compare == TRUE){
-          tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,'comp 4'])
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,'comp 4']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,'comp 4']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,'comp 4']))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,'comp 4']))
-          table <- cbind(as.matrix(table), as.matrix(tempTable))
-        }
-      }
-
 
       if(input$compare == FALSE)
         colnames(table) <- c('Eigenvector')
@@ -577,6 +532,36 @@ visualize <- function(model, rename = F) {
       for(i in 1:nEntries){
         toPrint[[length(toPrint)+1]] <- nodesNedges[nodesNedges$group == dataNames[i],]
       }
+
+      output$hoverNetM <- renderValueBox({
+        n <- event_data("plotly_hover")
+        if (is.null(n)){
+          value <- "N/A"
+        }
+        else
+          value <- as.character(toPrint[[n$curveNumber]][n$pointNumber + 1,]$vertex.names)
+        valueBox(
+          value = value,
+          subtitle = "Hovered Node",
+          icon = icon("anchor")
+        )
+      })
+
+      output$clickNetM <- renderValueBox({
+        n <- event_data("plotly_click")
+        if (is.null(n)){
+          value <- "N/A"
+        }
+        else
+          value <- as.character(toPrint[[n$curveNumber]][n$pointNumber + 1,]$vertex.names)
+        valueBox(
+          value = value,
+          subtitle = "Clicked Node",
+          icon = icon("anchor")
+        )
+      })
+
+
 
       output$hoverNet <- renderPrint({
         n <- event_data("plotly_hover")
