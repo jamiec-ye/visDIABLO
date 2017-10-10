@@ -3,6 +3,7 @@
 #' @param geneSet A list of gene symbols.
 genesetEnrichment <- function(geneSet) {
   # Get dataset
+  library(sear)
   collections <- sear::collections
   candidates <- geneSet
 
