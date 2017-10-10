@@ -20,6 +20,8 @@
 visualize <- function(model, rename = F) {
   if (rename == T){
     M <- convertHGNC(model)
+  } else {
+    M <- model
   }
   model1 <- M
   model2 <- M
