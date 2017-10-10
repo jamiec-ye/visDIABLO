@@ -8,7 +8,7 @@ genesetEnrichment <- function(geneSet) {
 
   # Perform 'sear'
   result <- sear::sear(candidates)
-  profile <- result[order(result$fdr),]
+  profile <- dplyr::arrange(result, fdr)
 }
 
 #' Rename features using HGNC symbols
