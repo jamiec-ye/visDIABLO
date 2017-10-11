@@ -519,7 +519,7 @@ visualize <- function(model, rename = F) {
       # PPI Integration ----
       if(PPIIntegration == TRUE){
         # import PPI data
-        data <- read.csv("C:\\Users\\Jamie\\Documents\\HLIPROOF\\PPIList.csv")
+        data <- PPIList
 
         # match edges and PPI data
         matches <- matchPPI(nodesNedges[, c("vertex.names.x", "vertex.names.y")], data)
