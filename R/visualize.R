@@ -47,14 +47,14 @@ visualize <- function(model, rename = F) {
 
   sidebar <- dashboardSidebar(
     sidebarMenu(
-      menuItem("DIABLO", tabName = "diablo"),
-      menuItem("Components", tabName = "components"),
-      menuItem("Variables", tabName = "variables"),
+      # menuItem("DIABLO", tabName = "diablo"),
+      # menuItem("Components", tabName = "components"),
+      # menuItem("Variables", tabName = "variables"),
       menuItem("BiPlot", tabName = "biplot"),
-      menuItem("Loading Vectors", tabName = "loadingVectors"),
-      menuItem("Heatmap", tabName = "heatmap"),
-      menuItem("Network", tabName = "network"),
-      menuItem("Circos", tabName = "circos")
+      # menuItem("Loading Vectors", tabName = "loadingVectors"),
+      # menuItem("Heatmap", tabName = "heatmap"),
+      menuItem("Network", tabName = "network")
+      # menuItem("Circos", tabName = "circos")
     )
   )
 
