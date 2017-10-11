@@ -262,9 +262,9 @@ visualize <- function(model, rename = F) {
                            dataTableOutput("nodes_data_from_shiny")
                        ),
                        box(width = NULL,
+                           DT::dataTableOutput("brushNet"),
                            verbatimTextOutput("hoverNet"),
-                           verbatimTextOutput("clickNet"),
-                           verbatimTextOutput("brushNet")
+                           verbatimTextOutput("clickNet")
                        ),
                        box(width = NULL,
                            valueBoxOutput("hoverNetM", width = 6),
@@ -577,9 +577,11 @@ visualize <- function(model, rename = F) {
           as.character(toPrint[[n$curveNumber]][n$pointNumber + 1,]$vertex.names)
       })
 
-      output$brushNet <- renderPrint({
+      output$brushNet <- DT::renderDataTable({
         n <- event_data("plotly_selected")
-        if (is.null(n)) "Click and drag events (i.e., select/lasso) appear here (double-click to clear)"
+        if (is.null(n)){
+          # "Click and drag events (i.e., select/lasso) appear here (double-click to clear)"
+        }
         else {
           n <- n[c("curveNumber", "pointNumber")]
           n[,2] <- n[,2] + 1
@@ -600,9 +602,41 @@ visualize <- function(model, rename = F) {
           else{
             p <- as.vector(print$vertex.names)
           }
-          p
+          DT::datatable(data = p, class = 'compact stripe', colnames = c('Rank' = 1, 'Collection' = 2, 'Geneset' = 3, 'FDR' = 4),
+                        caption = htmltools::tags$caption(
+                          style = 'caption-side: top; text-align: center;',
+                          'Table 1: ', htmltools::em('Geneset Enrichment Results')),
+                          fillContainer = TRUE, options = list(searching = FALSE, autoWidth = TRUE, scrollY = 400, paging = FALSE))
         }
       })
+
+      # legacy
+      # output$brushNet <- renderPrint({
+      #   n <- event_data("plotly_selected")
+      #   if (is.null(n)) "Click and drag events (i.e., select/lasso) appear here (double-click to clear)"
+      #   else {
+      #     n <- n[c("curveNumber", "pointNumber")]
+      #     n[,2] <- n[,2] + 1
+      #
+      #     print <- nodes %>%
+      #       dplyr::tbl_df() %>%
+      #       dplyr::mutate(group = factor(group, levels = dataNames),
+      #                     curveNumber = as.numeric(group)) %>%
+      #       dplyr::group_by(group) %>%
+      #       dplyr::mutate(pointNumber = 1:n()) %>%
+      #       as.data.frame() %>%
+      #       dplyr::inner_join(., n)
+      #
+      #     # Geneset Enrichment ----
+      #     if(geneEnrichment == TRUE){
+      #       p <- genesetEnrichment(as.vector(print$vertex.names))[1:20,c("collection", "geneset", "fdr")]
+      #     }
+      #     else{
+      #       p <- as.vector(print$vertex.names)
+      #     }
+      #     p
+      #   }
+      # })
 
       # plot graph
       # library dependency bug
