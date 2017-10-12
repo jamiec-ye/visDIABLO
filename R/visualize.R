@@ -5,6 +5,7 @@
 #' @import shiny
 #' @import shinythemes
 #' @import shinydashboard
+#' @import shinyBS
 #' @import DT
 #' @import igraph
 #' @import visNetwork
@@ -50,10 +51,53 @@ visualize <- function(model, rename = F) {
       # menuItem("DIABLO", tabName = "diablo"),
       # menuItem("Components", tabName = "components"),
       # menuItem("Variables", tabName = "variables"),
-      menuItem("BiPlot", tabName = "biplot"),
+      menuItem(
+        div(
+          div(
+            # edit1
+            style="width:75%; display:inline-block; vertical-align: middle;",
+            "BiPlot"
+          ),
+          div(
+            # edit2
+            style="display:inline-block; vertical-align: middle;",
+            bsButton("q1", label = "", icon = icon("question"),
+                     style = "info", size = "small"),
+            bsPopover(id = "q1", title = "BiPlot",
+                      content = paste0("You should read the ",
+                                       a("tidy data paper",
+                                         href = "http://vita.had.co.nz/papers/tidy-data.pdf",
+                                         target="_blank")),
+                      placement = "right",
+                      trigger = "click",
+                      options = list(container = "body")
+            )
+          )
+        )
+        , tabName = "biplot"),
       # menuItem("Loading Vectors", tabName = "loadingVectors"),
       # menuItem("Heatmap", tabName = "heatmap"),
-      menuItem("Network", tabName = "network")
+      menuItem(
+        div(
+          div(
+            # edit1
+            style="width:75%; display:inline-block; vertical-align: middle;",
+            "Network"
+          ),
+          div(
+            # edit2
+            style="display:inline-block; vertical-align: middle;",
+            bsButton("q2", label = "", icon = icon("question"),
+                     style = "info", size = "small"),
+            bsPopover(id = "q2", title = "Network",
+                      content = paste0("Lasso a group of nodes to perform geneset enrichment analysis"),
+                      placement = "right",
+                      trigger = "click",
+                      options = list(container = "body")
+            )
+          )
+        )
+        , tabName = "network")
       # menuItem("Circos", tabName = "circos")
     )
   )
@@ -388,18 +432,18 @@ visualize <- function(model, rename = F) {
     output$varTable <- DT::renderDataTable({
       compN <- paste(c("comp ", input$selectComp), sep="", collapse="")
       table <- as.matrix(model1$loadings[[1]][,compN])
-        for(i in 2:nEntries){
-          table <- rbind(table, as.matrix(model1$loadings[[i]][,compN]))
-        }
-        if(input$compare == TRUE){
-          tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,compN])
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,compN]))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,compN]))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,compN]))
-          tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,compN]))
-          table <- cbind(as.matrix(table), as.matrix(tempTable))
-        }
-        table
+      for(i in 2:nEntries){
+        table <- rbind(table, as.matrix(model1$loadings[[i]][,compN]))
+      }
+      if(input$compare == TRUE){
+        tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,compN])
+        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,compN]))
+        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,compN]))
+        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,compN]))
+        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,compN]))
+        table <- cbind(as.matrix(table), as.matrix(tempTable))
+      }
+      table
 
       if(input$compare == FALSE)
         colnames(table) <- c('Eigenvector')
@@ -606,7 +650,7 @@ visualize <- function(model, rename = F) {
                         caption = htmltools::tags$caption(
                           style = 'caption-side: top; text-align: center;',
                           'Table 1: ', htmltools::em('Geneset Enrichment Results')),
-                          fillContainer = TRUE, options = list(searching = FALSE, autoWidth = TRUE, scrollY = 400, paging = FALSE))
+                        fillContainer = TRUE, options = list(searching = FALSE, autoWidth = TRUE, scrollY = 400, paging = FALSE))
         }
       })
 
