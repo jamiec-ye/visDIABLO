@@ -45,6 +45,8 @@ visualize <- function(model, rename = F) {
 
   header <- dashboardHeader(title = "Dashboard"
   )
+  # temp
+  library(shinyBS)
 
   sidebar <- dashboardSidebar(
     sidebarMenu(
@@ -61,13 +63,10 @@ visualize <- function(model, rename = F) {
           div(
             # edit2
             style="display:inline-block; vertical-align: middle;",
-            bsButton("q1", label = "", icon = icon("question"),
+            shinyBS::bsButton("q1", label = "", icon = icon("question"),
                      style = "info", size = "small"),
-            bsPopover(id = "q1", title = "BiPlot",
-                      content = paste0("You should read the ",
-                                       a("tidy data paper",
-                                         href = "http://vita.had.co.nz/papers/tidy-data.pdf",
-                                         target="_blank")),
+            shinyBS::bsPopover(id = "q1", title = "BiPlot",
+                      content = paste0("A biplot is plot which aims to represent both the observations and variables of a matrix of multivariate data on the same plot."),
                       placement = "right",
                       trigger = "click",
                       options = list(container = "body")
@@ -87,9 +86,9 @@ visualize <- function(model, rename = F) {
           div(
             # edit2
             style="display:inline-block; vertical-align: middle;",
-            bsButton("q2", label = "", icon = icon("question"),
+            shinyBS::bsButton("q2", label = "", icon = icon("question"),
                      style = "info", size = "small"),
-            bsPopover(id = "q2", title = "Network",
+            shinyBS::bsPopover(id = "q2", title = "Network",
                       content = paste0("Lasso a group of nodes to perform geneset enrichment analysis"),
                       placement = "right",
                       trigger = "click",
@@ -226,11 +225,11 @@ visualize <- function(model, rename = F) {
                        )
                 ),
                 column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compareIndiv", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )),
+                       # box(width = NULL, status = "warning",
+                       #     checkboxInput("compareIndiv", "Compare"),
+                       #     p(class = "text-muted",
+                       #       "Compare displays and contrasts another model."
+                       #     )),
                        box(width = NULL, status = "warning",
                            selectInput("selectDataBi", label = h3("Select data"),
                                        choices = dataNames,
@@ -241,12 +240,12 @@ visualize <- function(model, rename = F) {
                                         selected = 1),
                            radioButtons("compYBi", label = h3("Y Component"),
                                         choices = as.list(1:nComp),
-                                        selected = 2),
-                           br(),
-                           checkboxInput("showIndNames", label = "Show Ind. Names", value = FALSE),
-                           p(class = "text-muted",
-                             "Show individual names"
-                           )
+                                        selected = 2)
+                           # br(),
+                           # checkboxInput("showIndNames", label = "Show Ind. Names", value = FALSE),
+                           # p(class = "text-muted",
+                           #   "Show individual names"
+                           # )
                        )
                 )
               )
@@ -306,25 +305,25 @@ visualize <- function(model, rename = F) {
                            dataTableOutput("nodes_data_from_shiny")
                        ),
                        box(width = NULL,
-                           DT::dataTableOutput("brushNet"),
-                           verbatimTextOutput("hoverNet"),
-                           verbatimTextOutput("clickNet")
+                           DT::dataTableOutput("brushNet")
+                           # verbatimTextOutput("hoverNet"),
+                           # verbatimTextOutput("clickNet")
                        ),
                        box(width = NULL,
-                           valueBoxOutput("hoverNetM", width = 6),
-                           valueBoxOutput("clickNetM", width = 6),
+                           # valueBoxOutput("hoverNetM", width = 6),
+                           # valueBoxOutput("clickNetM", width = 6),
                            valueBoxOutput("density"),
                            valueBoxOutput("transitivity"),
                            valueBoxOutput("modularity")
                        )
                 ),
                 column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compare", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )
-                       ),
+                       # box(width = NULL, status = "warning",
+                       #     checkboxInput("compare", "Compare"),
+                       #     p(class = "text-muted",
+                       #       "Compare displays and contrasts another model."
+                       #     )
+                       # ),
                        box(width = NULL, status = "warning",
                            sliderInput("threshold", label = h3("Cutoff"), min = 0.4,
                                        max = 1, value = 0.7),
@@ -334,7 +333,10 @@ visualize <- function(model, rename = F) {
                              paste("Note: Cutoff removes any edges with weight less than the indicated value."
                              )
                            )
-                       )
+                       ),
+                       box(width = NULL,
+                           fluidRow(valueBoxOutput("hoverNetM", width = 12)),
+                           fluidRow(valueBoxOutput("clickNetM", width = 12)))
                 )
               )
       ),
@@ -457,9 +459,12 @@ visualize <- function(model, rename = F) {
     })
 
     # Biplot ----
+    # Make names (TODO)
+    samples <- rownames(M$X[[1]])
     output$biplot1 <- renderPlotly({
       p <- get(input$selectDataBi, ggmixOmics::ggbiplot(M, comps = c(as.numeric(input$compXBi),
                                                                      as.numeric(input$compYBi))))
+      p$data <- cbind(p$data, samples)
 
       ggplotly(p) %>%
         layout(dragmode = "lasso")
@@ -586,8 +591,7 @@ visualize <- function(model, rename = F) {
           value <- as.character(toPrint[[n$curveNumber]][n$pointNumber + 1,]$vertex.names)
         valueBox(
           value = value,
-          subtitle = "Hovered Node",
-          icon = icon("anchor")
+          subtitle = "Hovered Node"
         )
       })
 
@@ -600,8 +604,7 @@ visualize <- function(model, rename = F) {
           value <- as.character(toPrint[[n$curveNumber]][n$pointNumber + 1,]$vertex.names)
         valueBox(
           value = value,
-          subtitle = "Clicked Node",
-          icon = icon("anchor")
+          subtitle = "Clicked Node"
         )
       })
 
