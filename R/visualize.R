@@ -653,7 +653,7 @@ visualize <- function(model, rename = F) {
                         caption = htmltools::tags$caption(
                           style = 'caption-side: top; text-align: center;',
                           'Table 1: ', htmltools::em('Geneset Enrichment Results')),
-                        fillContainer = TRUE, options = list(searching = FALSE, autoWidth = TRUE, scrollY = 400, paging = FALSE))
+                        options = list(searching = FALSE, autoWidth = TRUE, scrollY = 400, paging = FALSE))
         }
       })
 
