@@ -2,7 +2,6 @@
 
 export(visualize)
 import(DT)
-import(biomaRt)
 import(ggmixOmics)
 import(ggnetwork)
 import(ggplot2)
