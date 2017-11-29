@@ -1,15 +1,24 @@
 #' Gene set enrichment analysis
 #
 #' @param geneSet A list of gene symbols.
-genesetEnrichment <- function(geneSet) {
+#' @param featureMapping A list of data frames containing 'Data.Names', 'Gene.Symbols', 'Display.Names' for each of the data blocks.
+
+genesetEnrichment <- function(geneSet, featureMapping) {
   # Get dataset
   library(sear)
-  collections <- sear::collections
   candidates <- geneSet
+  if (!is.null(featureMapping)){
+    for (name in candidates){
+      warning(sprintf("%s", name))
+    }
+  }
 
   # Perform 'sear'
   result <- sear::sear(candidates)
-  profile <- dplyr::arrange(result, fdr)
+  result <- dplyr::arrange(result, fdr)
+  result <- result[1:20, c("collection", "geneset", "fdr")]
+  result[, -c(1,2)] <- signif(result[, -c(1,2)], digits = 3)
+  result
 }
 
 #' Rename features using HGNC symbols

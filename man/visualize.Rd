@@ -4,10 +4,12 @@
 \alias{visualize}
 \title{Visualize}
 \usage{
-visualize(model, rename = F)
+visualize(model, rename = F, featureMapping = NULL)
 }
 \arguments{
 \item{model}{A DIABLO model object.}
+
+\item{featureMapping}{A list of data frames containing 'Data.Names', 'Gene.Symbols', 'Display.Names' for each of the data blocks.}
 }
 \description{
 Visualize

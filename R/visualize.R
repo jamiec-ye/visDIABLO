@@ -2,6 +2,7 @@
 #' @author Jamie C. Ye
 #
 #' @param model A DIABLO model object.
+#' @param featureMapping A list of data frames containing 'Data.Names', 'Gene.Symbols', 'Display.Names' for each of the data blocks.
 #' @import shiny
 #' @import shinythemes
 #' @import shinydashboard
@@ -18,7 +19,7 @@
 #' @import tidyverse
 #' @export
 
-visualize <- function(model, rename = F) {
+visualize <- function(model, rename = F, featureMapping = NULL) {
   if (rename == T){
     M <- convertHGNC(model)
   } else {
@@ -26,6 +27,11 @@ visualize <- function(model, rename = F) {
   }
   model1 <- M
   model2 <- M
+
+  if (class(featureMapping) != "list"){
+    featureMapping = NULL
+    warning(sprintf("featureMapping parameter is not in correct format"))
+  }
 
   # Get component names ----
   dataNames <- names(M$X)
@@ -305,8 +311,8 @@ visualize <- function(model, rename = F) {
                            dataTableOutput("nodes_data_from_shiny")
                        ),
                        box(width = NULL,
-                           DT::dataTableOutput("brushNet")
-                           # verbatimTextOutput("hoverNet"),
+                           DT::dataTableOutput("brushNet"),
+                           verbatimTextOutput("brushNodes")
                            # verbatimTextOutput("clickNet")
                        ),
                        box(width = NULL,
@@ -644,7 +650,7 @@ visualize <- function(model, rename = F) {
 
           # Geneset Enrichment ----
           if(geneEnrichment == TRUE){
-            p <- genesetEnrichment(as.vector(print$vertex.names))[1:20,c("collection", "geneset", "fdr")]
+            p <- genesetEnrichment(as.vector(print$vertex.names), featureMapping)
           }
           else{
             p <- as.vector(print$vertex.names)
@@ -657,37 +663,38 @@ visualize <- function(model, rename = F) {
         }
       })
 
-      # legacy
-      # output$brushNet <- renderPrint({
-      #   n <- event_data("plotly_selected")
-      #   if (is.null(n)) "Click and drag events (i.e., select/lasso) appear here (double-click to clear)"
-      #   else {
-      #     n <- n[c("curveNumber", "pointNumber")]
-      #     n[,2] <- n[,2] + 1
-      #
-      #     print <- nodes %>%
-      #       dplyr::tbl_df() %>%
-      #       dplyr::mutate(group = factor(group, levels = dataNames),
-      #                     curveNumber = as.numeric(group)) %>%
-      #       dplyr::group_by(group) %>%
-      #       dplyr::mutate(pointNumber = 1:n()) %>%
-      #       as.data.frame() %>%
-      #       dplyr::inner_join(., n)
-      #
-      #     # Geneset Enrichment ----
-      #     if(geneEnrichment == TRUE){
-      #       p <- genesetEnrichment(as.vector(print$vertex.names))[1:20,c("collection", "geneset", "fdr")]
-      #     }
-      #     else{
-      #       p <- as.vector(print$vertex.names)
-      #     }
-      #     p
-      #   }
-      # })
+      output$brushNodes <- renderPrint({
+        n <- event_data("plotly_selected")
+        if (is.null(n)) "Click and drag events (i.e., select/lasso) appear here (double-click to clear)"
+        else {
+          n <- n[c("curveNumber", "pointNumber")]
+          n[,2] <- n[,2] + 1
+
+          print <- nodes %>%
+            dplyr::tbl_df() %>%
+            dplyr::mutate(group = factor(group, levels = dataNames),
+                          curveNumber = as.numeric(group)) %>%
+            dplyr::group_by(group) %>%
+            dplyr::mutate(pointNumber = 1:n()) %>%
+            as.data.frame() %>%
+            dplyr::inner_join(., n)
+
+          # Geneset Enrichment ----
+          p <- as.vector(print$vertex.names)
+
+          p
+        }
+      })
 
       # plot graph
       # library dependency bug
       library(ggnetwork)
+
+      # for (i in 1:nrow(nodesNedges)){
+      #   if(!is.na(nodesNedges[i, "weight"])){
+      #     nodesNedges[i, "vertex.names"] <- NA
+      #   }
+      # }
 
       plot <- ggplot2::ggplot(nodesNedges, ggplot2::aes(x = x, y= y, xend = xend, yend = yend, text = vertex.names)) +
         ggnetwork::geom_edges(size = 0.1, color = "grey50") +
@@ -695,8 +702,12 @@ visualize <- function(model, rename = F) {
         viridis::scale_fill_viridis('', discrete = TRUE) +
         ggplot2::theme_void()
 
-      ggplotly(plot, tooltip = "text") %>%
+      ggplot <- ggplotly(plot, tooltip = "text") %>%
         layout(dragmode = "lasso")
+
+      ggplot$x$data[[1]]$hoverinfo <- "none"
+
+      ggplot
     })
   }
 

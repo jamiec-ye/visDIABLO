@@ -4,10 +4,12 @@
 \alias{genesetEnrichment}
 \title{Gene set enrichment analysis}
 \usage{
-genesetEnrichment(geneSet)
+genesetEnrichment(geneSet, featureMapping)
 }
 \arguments{
 \item{geneSet}{A list of gene symbols.}
+
+\item{featureMapping}{A list of data frames containing 'Data.Names', 'Gene.Symbols', 'Display.Names' for each of the data blocks.}
 }
 \description{
 Gene set enrichment analysis
