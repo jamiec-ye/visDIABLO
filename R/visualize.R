@@ -1,5 +1,5 @@
-#' Visualize
-#' @author Jamie C. Ye
+#' Visualize DIABLO models in an interactive environment
+#' @author Jamie C. Ye <jamiec.ye@@gmail.com>
 #
 #' @param model A DIABLO model object.
 #' @param featureMapping A list of data frames containing 'Data.Names', 'Gene.Symbols', 'Display.Names' for each of the data blocks.
@@ -7,10 +7,10 @@
 #' @import shinythemes
 #' @import shinydashboard
 #' @import shinyBS
-#' @import DT
-#' @import igraph
+#' @importFrom DT dataTableOutput renderDataTable datatable
+#' @importFrom igraph graph.adjacency simplify edge_density transitivity cluster_edge_betweenness
 #' @import visNetwork
-#' @import plotly
+#' @importFrom plotly renderPlotly ggplotly plotlyOutput
 #' @import ggmixOmics
 #' @import network
 #' @import sna
@@ -19,12 +19,7 @@
 #' @import tidyverse
 #' @export
 
-visualize <- function(model, rename = F, featureMapping = NULL) {
-  if (rename == T){
-    M <- convertHGNC(model)
-  } else {
-    M <- model
-  }
+visualize <- function(model, featureMapping = NULL) {
   model1 <- M
   model2 <- M
 
@@ -56,9 +51,6 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
 
   sidebar <- dashboardSidebar(
     sidebarMenu(
-      # menuItem("DIABLO", tabName = "diablo"),
-      # menuItem("Components", tabName = "components"),
-      # menuItem("Variables", tabName = "variables"),
       menuItem(
         div(
           div(
@@ -80,8 +72,6 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
           )
         )
         , tabName = "biplot"),
-      # menuItem("Loading Vectors", tabName = "loadingVectors"),
-      # menuItem("Heatmap", tabName = "heatmap"),
       menuItem(
         div(
           div(
@@ -103,127 +93,16 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
           )
         )
         , tabName = "network")
-      # menuItem("Circos", tabName = "circos")
     )
   )
 
   body <- dashboardBody(
     tabItems(
-      tabItem("diablo",
-              fixedRow(
-                column(width = 9,
-                       box(width = NULL, solidHeader = TRUE,
-                           plotOutput("diablo1", height = 800)
-                           ,
-
-                           conditionalPanel(condition = "input.compareDiablo == true",
-                                            plotOutput("diablo2", height = 800))
-
-                       )
-                ),
-                column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compareDiablo", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )
-                       )
-                )
-              )
-      ),
-
-      tabItem("components",
-              fluidRow(
-                column(width = 9,
-                       box(width = NULL, solidHeader = TRUE,
-                           plotlyOutput("compplot1", height= "auto")
-                           ,
-                           conditionalPanel(condition = "input.compareIndiv == true",
-                                            plotOutput("indiv2")
-                           )
-
-                       ),
-                       box(width = NULL,
-                           verbatimTextOutput("hoverComp"),
-                           verbatimTextOutput("clickComp"),
-                           verbatimTextOutput("brushComp"))
-                ),
-                column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compareIndiv", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )),
-                       box(width = NULL, status = "warning",
-                           selectInput("selectDataComp", label = h3("Select data"),
-                                       choices = dataNames,
-                                       selected = 1),
-                           br(),
-                           radioButtons("compXComp", label = h3("X Component"),
-                                        choices = as.list(1:nComp),
-                                        selected = 1),
-                           radioButtons("compYComp", label = h3("Y Component"),
-                                        choices = as.list(1:nComp),
-                                        selected = 2),
-                           br(),
-                           checkboxInput("showIndNames", label = "Show Ind. Names", value = FALSE),
-                           p(class = "text-muted",
-                             "Show individual names"
-                           )
-                       )
-                )
-              )
-      ),
-
-      tabItem("variables",
-              fluidRow(
-                column(width = 9,
-                       box(width = NULL, solidHeader = TRUE,
-                           plotlyOutput("var1", height = 800)
-                           ,
-
-                           conditionalPanel(condition = "input.compareVar == true",
-                                            plotOutput("var2", height = 800))
-
-                       ),
-                       box(width = NULL,
-                           DT::dataTableOutput("varTable")
-                       )
-                ),
-                column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compareVar", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )),
-                       box(width = NULL, status = "warning",
-                           selectInput("selectDataVar", label = h3("Select data"),
-                                       choices = dataNames,
-                                       selected = 1),
-                           br(),
-                           selectInput("selectComp", label = h3("Select component"),
-                                       choices = as.list(1:nComp),
-                                       selected = 1),
-                           p(
-                             class = "text-muted",
-                             paste("Select data to display in table."
-                             )
-                           ),
-                           br(),
-                           checkboxInput("showVarNames", label = "Show Var. Names", value = FALSE),
-                           p(class = "text-muted",
-                             "Show variable names"
-                           )
-                       )
-                )
-              )
-      ),
-
       tabItem("biplot",
               fluidRow(
                 column(width = 9,
                        box(width = NULL, solidHeader = TRUE,
-                           plotlyOutput("biplot1", height = 800)
+                           plotly::plotlyOutput("biplot1", height = 800)
                            ,
                            conditionalPanel(condition = "input.compareIndiv == true",
                                             plotOutput("biplot2", height = 800))
@@ -257,57 +136,11 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
               )
       ),
 
-      tabItem("loadingVectors",
-              fluidRow(
-                column(width = 9,
-                       box(width = NULL, solidHeader = TRUE,
-                           plotOutput("loadings1", height = 800)
-                           ,
-
-                           conditionalPanel(condition = "input.compareLoading == true",
-                                            plotOutput("loadings2", height = 800))
-
-                       )
-                ),
-                column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compareLoading", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )
-                       )
-                )
-              )
-      ),
-
-      tabItem("heatmap",
-              fluidRow(
-                column(width = 9,
-                       box(width = NULL, solidHeader = TRUE,
-                           plotOutput("heatmap1", height = 800)
-                           ,
-
-                           conditionalPanel(condition = "input.compareHeat == true",
-                                            plotOutput("heatmap2", height = 800))
-
-                       )
-                ),
-                column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compareHeat", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )
-                       )
-                )
-              )
-      ),
-
       tabItem("network",
               fluidRow(
                 column(width = 9,
                        box(width = NULL, solidHeader = TRUE,
-                           plotlyOutput("network", height = 800),
+                           plotly::plotlyOutput("network", height = 800),
                            dataTableOutput("nodes_data_from_shiny")
                        ),
                        box(width = NULL,
@@ -345,37 +178,6 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
                            fluidRow(valueBoxOutput("clickNetM", width = 12)))
                 )
               )
-      ),
-
-      tabItem("circos",
-              fluidRow(
-                column(width = 9,
-                       box(width = NULL, solidHeader = TRUE,
-                           plotOutput("circos1", height = 800),
-
-                           conditionalPanel(condition = "input.compareCircos == true",
-                                            plotOutput("circos2", height = 800))
-                       )
-                ),
-                column(width = 3,
-                       box(width = NULL, status = "warning",
-                           checkboxInput("compareCircos", "Compare"),
-                           p(class = "text-muted",
-                             "Compare displays and contrasts another model."
-                           )
-                       ),
-                       box(width = NULL, status = "warning",
-                           sliderInput("cutoff", label = h3("Cutoff"), min = 0.5,
-                                       max = 1, value = 0.90),
-                           p(
-                             class = "text-muted",
-                             paste("Note: Cutoff removes any edges with weight less than the indicated value."
-                             )
-                           )
-                       )
-                )
-              )
-
       )
     )
   )
@@ -390,118 +192,20 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
   # Server ----
   server <- function(input,output, session) {
 
-    # Compplot ----
-    output$compplot1 <- renderPlotly({
-      p <- get(input$selectDataComp, ggmixOmics::ggcompplot(M, comps = c(as.numeric(input$compXComp),
-                                                                         as.numeric(input$compYComp))))
-
-      ggplotly(p) %>%
-        layout(dragmode = "lasso", height = 800, width = 800)
-    }
-    #, height = function() {
-    #  session$clientData$output_compplot1_width
-    #}
-    )
-
-    output$hoverComp <- renderPrint({
-      d <- event_data("plotly_hover")
-      if (is.null(d)) "Hover events appear here (unhover to clear)" else d
-    })
-
-    output$clickComp <- renderPrint({
-      d <- event_data("plotly_click")
-      if (is.null(d)) "Click events appear here (double-click to clear)" else d
-    })
-
-    output$brushComp <- renderPrint({
-      d <- event_data("plotly_selected")
-      if (is.null(d)) "Click and drag events (i.e., select/lasso) appear here (double-click to clear)" else d
-    })
-
-
-    # Varplot ----
-    plotVar <- mixOmics::plotVar(model1)
-
-    # Get rownames for each Block
-    # legacy
-    # flowCytometry <- row.names(subset(plotVar, Block == "Flow Cytometry"))
-    # luminexCytokine <- row.names(subset(plotVar, Block == "Luminex Cytokine"))
-    # metabolomics <- row.names(subset(plotVar, Block == "Metabolomics"))
-    # proteomics <- row.names(subset(plotVar, Block == "Proteomics"))
-    # transcriptomics <- row.names(subset(plotVar, Block == "Transcriptomics"))
-
-    output$var1 <- renderPlotly({
-      p <- get(input$selectDataVar, ggmixOmics::ggvarplot(M))
-
-      ggplotly(p) %>%
-        layout(dragmode = "lasso")
-    })
-
-    output$varTable <- DT::renderDataTable({
-      compN <- paste(c("comp ", input$selectComp), sep="", collapse="")
-      table <- as.matrix(model1$loadings[[1]][,compN])
-      for(i in 2:nEntries){
-        table <- rbind(table, as.matrix(model1$loadings[[i]][,compN]))
-      }
-      if(input$compare == TRUE){
-        tempTable <- as.matrix(model2$loadings$`Flow cytometry`[,compN])
-        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Luminex cytokine'[,compN]))
-        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Metabolomics'[,compN]))
-        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Proteomics'[,compN]))
-        tempTable <- rbind(tempTable, as.matrix(model2$loadings$'Transcriptomics'[,compN]))
-        table <- cbind(as.matrix(table), as.matrix(tempTable))
-      }
-      table
-
-      if(input$compare == FALSE)
-        colnames(table) <- c('Eigenvector')
-      if(input$compare == TRUE)
-        colnames(table) <- c('Eigenvector 1', 'Eigenvector 2')
-
-      # table <- as.matrix(table[apply(table[,-1], 1, function(x) !all(x==0)),])
-      DT::datatable(data = table,
-                    options = list(scrollX = TRUE, scrollY = "275px", autoWidth = FALSE)
-      )
-    })
-
     # Biplot ----
     # Make names (TODO)
     samples <- rownames(M$X[[1]])
-    output$biplot1 <- renderPlotly({
+    output$biplot1 <- plotly::renderPlotly({
       p <- get(input$selectDataBi, ggmixOmics::ggbiplot(M, comps = c(as.numeric(input$compXBi),
                                                                      as.numeric(input$compYBi))))
       p$data <- cbind(p$data, samples)
 
-      ggplotly(p) %>%
+      plotly::ggplotly(p) %>%
         layout(dragmode = "lasso")
     })
 
-    # Loadings ----
-    output$loadings1 <- renderPlot({mixOmics::plotLoadings(model1, title = "Plot of Loading vectors 1")$graph},
-                                   bg = "transparent")
-    output$loadings2 <- renderPlot({mixOmics::plotLoadings(model2, title = "Plot of Loading vectors 2")$graph},
-                                   bg = "transparent")
-
-    # Circos ----
-    output$circos1 <- renderPlot({mixOmics::circosPlot(model1, cutoff = input$cutoff)}, bg = "transparent")
-    output$circos2 <- renderPlot({mixOmics::circosPlot(model2, cutoff = input$cutoff)}, bg = "transparent")
-
-
-    # Heatmap ----
-    ncomp <- 2
-    corr <- getCorMat(M, method = 'pearson')
-    d <- hclust(dist(corr))
-    m <- corr[d$order, d$order]
-    g1 <- GGally::ggcorr(data = NULL, cor_matrix = m, hjust = 0, size = 0.1, colour = 'white', layout.exp = 0)
-
-    output$heatmap1 <- renderPlot({plot(g1)})
-
-    # Diablo ----
-    output$diablo1 <- renderPlot({mixOmics::plotDiablo(model1)$graph}, bg = "transparent")
-    output$diablo2 <- renderPlot({mixOmics::plotDiablo(model2)$graph}, bg = "transparent")
-
     # Network ----
-    output$network <- renderPlotly({
+    output$network <- plotly::renderPlotly({
       #minimal example
       corThreshold <- input$threshold
 
@@ -512,8 +216,8 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
       rownames(corMat) <- make.names(rownames(corMat), unique=TRUE)
       colnames(corMat) <- make.names(colnames(corMat), unique=TRUE)
 
-      graph <- graph.adjacency(abs(corMat), weighted = TRUE, mode = "lower")
-      graph <- simplify(graph)
+      graph <- igraph::graph.adjacency(abs(corMat), weighted = TRUE, mode = "lower")
+      graph <- igraph::simplify(graph)
 
       # Assume ordered
       keeps <- 1:unique(M$ncomp) %>%
@@ -529,7 +233,7 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
       # graph information
       output$density <- renderValueBox({
         valueBox(
-          value = round(edge_density(graph, loops = FALSE), digits = 3),
+          value = round(igraph::edge_density(graph, loops = FALSE), digits = 3),
           subtitle = "Edge Density",
           icon = icon("anchor")
         )
@@ -537,7 +241,7 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
 
       output$transitivity <- renderValueBox({
         valueBox(
-          value = round(transitivity(graph, type = "global", vids = NULL,
+          value = round(igraph::transitivity(graph, type = "global", vids = NULL,
                                      weights = NULL, isolates = c("NaN", "zero")), digits = 3),
           subtitle = "Transitivity",
           icon = icon("wifi")
@@ -546,14 +250,14 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
 
       output$modularity <- renderValueBox({
         valueBox(
-          value = round(modularity(graph, membership(cluster_edge_betweenness(graph))), digits = 3),
+          value = round(modularity(graph, membership(igraph::cluster_edge_betweenness(graph))), digits = 3),
           subtitle = "Modularity",
           icon = icon("gavel")
         )
       })
 
       # convert plot to ggnetwork
-      nodesNedges <- ggnetwork(graph)
+      nodesNedges <- ggnetwork::ggnetwork(graph)
       nodesNedges$xend <- as.numeric(nodesNedges$xend)
       nodesNedges$yend <- as.numeric(nodesNedges$yend)
       nodesNedges$y <- as.numeric(nodesNedges$y)
@@ -702,7 +406,7 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
         viridis::scale_fill_viridis('', discrete = TRUE) +
         ggplot2::theme_void()
 
-      ggplot <- ggplotly(plot, tooltip = "text") %>%
+      ggplot <- plotly::ggplotly(plot, tooltip = "text") %>%
         layout(dragmode = "lasso")
 
       ggplot$x$data[[1]]$hoverinfo <- "none"
