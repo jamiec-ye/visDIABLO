@@ -8,7 +8,7 @@ Description: Interactive web application initially developed with 'Shiny'
     for the EPIC (Expanded Program on Immunization) ? HIPC (Human Immunology 
     Project Consortium) vaccine initiative for biologists and clinical
     scientists.
-License: What license is it under?
+License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: shiny,
