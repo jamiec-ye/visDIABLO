@@ -70,12 +70,12 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
             # edit2
             style="display:inline-block; vertical-align: middle;",
             shinyBS::bsButton("q1", label = "", icon = icon("question"),
-                     style = "info", size = "small"),
+                              style = "info", size = "small"),
             shinyBS::bsPopover(id = "q1", title = "BiPlot",
-                      content = paste0("A biplot is plot which aims to represent both the observations and variables of a matrix of multivariate data on the same plot."),
-                      placement = "right",
-                      trigger = "click",
-                      options = list(container = "body")
+                               content = paste0("A biplot is plot which aims to represent both the observations and variables of a matrix of multivariate data on the same plot."),
+                               placement = "right",
+                               trigger = "click",
+                               options = list(container = "body")
             )
           )
         )
@@ -93,12 +93,12 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
             # edit2
             style="display:inline-block; vertical-align: middle;",
             shinyBS::bsButton("q2", label = "", icon = icon("question"),
-                     style = "info", size = "small"),
+                              style = "info", size = "small"),
             shinyBS::bsPopover(id = "q2", title = "Network",
-                      content = paste0("Lasso a group of nodes to perform geneset enrichment analysis"),
-                      placement = "right",
-                      trigger = "click",
-                      options = list(container = "body")
+                               content = paste0("Lasso a group of nodes to perform geneset enrichment analysis"),
+                               placement = "right",
+                               trigger = "click",
+                               options = list(container = "body")
             )
           )
         )

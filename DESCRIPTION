@@ -11,24 +11,23 @@ Description: Interactive web application initially developed with 'Shiny'
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Imports: shiny,
-    shinythemes,
-    shinydashboard,
-    shinyBS,
+Imports: biomaRt,
     DT,
-    igraph,
-    visNetwork,
-    plotly,
-    ggmixOmics,
-    network,
-    sna,
     ggnetwork,
-    biomaRt,
-    prodlim,
-    sear,
     ggplot2,
+    igraph,
+    intergraph,
+    network,
+    plotly,
+    prodlim,
+    shiny,
+    shinyBS,
+    shinydashboard,
+    shinythemes,
+    sna,
+    stats,
     tidyverse,
-    intergraph
+    visNetwork
 Remotes: cashoes/ggmixOmics,
     cashoes/sear
 RoxygenNote: 6.0.1

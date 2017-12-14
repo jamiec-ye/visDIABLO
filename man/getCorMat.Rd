@@ -8,6 +8,8 @@ getCorMat(model, method = "pearson")
 }
 \arguments{
 \item{model}{A DIABLO model object.}
+
+\item{method}{a character string indicating which correlation coefficient (or covariance) is to be computed. One of "pearson" (default), "kendall", or "spearman": can be abbreviated.}
 }
 \description{
 Get correlation matrix
