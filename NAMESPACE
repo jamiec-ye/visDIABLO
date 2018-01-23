@@ -12,7 +12,6 @@ import(shinythemes)
 import(sna)
 import(tidyverse)
 import(visNetwork)
-<<<<<<< HEAD
 importFrom(DT,dataTableOutput)
 importFrom(DT,datatable)
 importFrom(DT,renderDataTable)
@@ -24,9 +23,7 @@ importFrom(igraph,transitivity)
 importFrom(plotly,ggplotly)
 importFrom(plotly,plotlyOutput)
 importFrom(plotly,renderPlotly)
-=======
 importFrom(dplyr,arrange)
 importFrom(magrittr,"%>%")
 importFrom(prodlim,row.match)
 importFrom(stats,cor)
->>>>>>> upstream/master
