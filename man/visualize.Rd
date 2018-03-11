@@ -2,9 +2,9 @@
 % Please edit documentation in R/visualize.R
 \name{visualize}
 \alias{visualize}
-\title{Visualize}
+\title{Visualize DIABLO models in an interactive environment}
 \usage{
-visualize(model, rename = F, featureMapping = NULL)
+visualize(model, featureMapping = NULL)
 }
 \arguments{
 \item{model}{A DIABLO model object.}
@@ -12,8 +12,8 @@ visualize(model, rename = F, featureMapping = NULL)
 \item{featureMapping}{A list of data frames containing 'Data.Names', 'Gene.Symbols', 'Display.Names' for each of the data blocks.}
 }
 \description{
-Visualize
+Visualize DIABLO models in an interactive environment
 }
 \author{
-Jamie C. Ye
+Jamie C. Ye <jamiec.ye@gmail.com>
 }
