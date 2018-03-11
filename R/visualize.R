@@ -1,5 +1,5 @@
-#' Visualize
-#' @author Jamie C. Ye
+#' Visualize DIABLO models in an interactive environment
+#' @author Jamie C. Ye <jamiec.ye@@gmail.com>
 #
 #' @param model A DIABLO model object.
 #' @param featureMapping A list of data frames containing 'Data.Names', 'Gene.Symbols', 'Display.Names' for each of the data blocks.
@@ -7,10 +7,10 @@
 #' @import shinythemes
 #' @import shinydashboard
 #' @import shinyBS
-#' @import DT
-#' @import igraph
+#' @importFrom DT dataTableOutput renderDataTable datatable
+#' @importFrom igraph graph.adjacency simplify edge_density transitivity cluster_edge_betweenness
 #' @import visNetwork
-#' @import plotly
+#' @importFrom plotly renderPlotly ggplotly plotlyOutput
 #' @import ggmixOmics
 #' @import network
 #' @import sna
@@ -19,7 +19,8 @@
 #' @import tidyverse
 #' @export
 
-visualize <- function(model, rename = F, featureMapping = NULL) {
+visualize <- function(model, featureMapping = NULL) {
+
   model1 <- M
   model2 <- M
   
@@ -51,7 +52,6 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
   
   sidebar <- dashboardSidebar(
     sidebarMenu(
-      
       menuItem(
         div(
           div(
@@ -63,12 +63,12 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
             # edit2
             style="display:inline-block; vertical-align: middle;",
             shinyBS::bsButton("q1", label = "", icon = icon("question"),
-                              style = "info", size = "small"),
+                     style = "info", size = "small"),
             shinyBS::bsPopover(id = "q1", title = "BiPlot",
-                               content = paste0("A biplot is plot which aims to represent both the observations and variables of a matrix of multivariate data on the same plot."),
-                               placement = "right",
-                               trigger = "click",
-                               options = list(container = "body")
+                      content = paste0("A biplot is plot which aims to represent both the observations and variables of a matrix of multivariate data on the same plot."),
+                      placement = "right",
+                      trigger = "click",
+                      options = list(container = "body")
             )
           )
         )
@@ -85,12 +85,12 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
             # edit2
             style="display:inline-block; vertical-align: middle;",
             shinyBS::bsButton("q2", label = "", icon = icon("question"),
-                              style = "info", size = "small"),
+                     style = "info", size = "small"),
             shinyBS::bsPopover(id = "q2", title = "Network",
-                               content = paste0("Lasso a group of nodes to perform geneset enrichment analysis"),
-                               placement = "right",
-                               trigger = "click",
-                               options = list(container = "body")
+                      content = paste0("Lasso a group of nodes to perform geneset enrichment analysis"),
+                      placement = "right",
+                      trigger = "click",
+                      options = list(container = "body")
             )
           )
         )
@@ -104,7 +104,7 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
               fluidRow(
                 column(width = 9,
                        box(width = NULL, solidHeader = TRUE,
-                           plotlyOutput("biplot1", height = 800)
+                           plotly::plotlyOutput("biplot1", height = 800)
                            ,
                            conditionalPanel(condition = "input.compareIndiv == true",
                                             plotOutput("biplot2", height = 800))
@@ -160,11 +160,12 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
                 )
               )
       ),
+
       tabItem("network",
               fluidRow(
                 column(width = 9,
                        box(width = NULL, solidHeader = TRUE,
-                           plotlyOutput("network", height = 800),
+                           plotly::plotlyOutput("network", height = 800),
                            dataTableOutput("nodes_data_from_shiny")
                        ),
                        box(width = NULL,
@@ -215,11 +216,11 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
   
   # Server ----
   server <- function(input,output, session) {
-    
+
     # Biplot ----
     # Make names (TODO)
     samples <- rownames(M$X[[1]])
-    output$biplot1 <- renderPlotly({
+    output$biplot1 <- plotly::renderPlotly({
       p <- get(input$selectDataBi, ggmixOmics::ggbiplot(M, comps = c(as.numeric(input$compXBi),
                                                                      as.numeric(input$compYBi))))
       p$data <- cbind(p$data, samples)
@@ -233,9 +234,9 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
                                    bg = "transparent")
     output$loadings2 <- renderPlot({mixOmics::plotLoadings(model2, title = "Plot of Loading vectors 2")$graph},
                                    bg = "transparent")
-    
+
     # Network ----
-    output$network <- renderPlotly({
+    output$network <- plotly::renderPlotly({
       #minimal example
       corThreshold <- input$threshold
       
@@ -245,10 +246,10 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
       
       rownames(corMat) <- make.names(rownames(corMat), unique=TRUE)
       colnames(corMat) <- make.names(colnames(corMat), unique=TRUE)
-      
-      graph <- graph.adjacency(abs(corMat), weighted = TRUE, mode = "lower")
-      graph <- simplify(graph)
-      
+
+      graph <- igraph::graph.adjacency(abs(corMat), weighted = TRUE, mode = "lower")
+      graph <- igraph::simplify(graph)
+
       # Assume ordered
       keeps <- 1:unique(M$ncomp) %>%
         purrr::map(~ mixOmics::selectVar(M, comp = .)) %>%
@@ -263,7 +264,7 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
       # graph information
       output$density <- renderValueBox({
         valueBox(
-          value = round(edge_density(graph, loops = FALSE), digits = 3),
+          value = round(igraph::edge_density(graph, loops = FALSE), digits = 3),
           subtitle = "Edge Density",
           icon = icon("anchor")
         )
@@ -271,7 +272,7 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
       
       output$transitivity <- renderValueBox({
         valueBox(
-          value = round(transitivity(graph, type = "global", vids = NULL,
+          value = round(igraph::transitivity(graph, type = "global", vids = NULL,
                                      weights = NULL, isolates = c("NaN", "zero")), digits = 3),
           subtitle = "Transitivity",
           icon = icon("wifi")
@@ -280,14 +281,14 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
       
       output$modularity <- renderValueBox({
         valueBox(
-          value = round(modularity(graph, membership(cluster_edge_betweenness(graph))), digits = 3),
+          value = round(modularity(graph, membership(igraph::cluster_edge_betweenness(graph))), digits = 3),
           subtitle = "Modularity",
           icon = icon("gavel")
         )
       })
       
       # convert plot to ggnetwork
-      nodesNedges <- ggnetwork(graph)
+      nodesNedges <- ggnetwork::ggnetwork(graph)
       nodesNedges$xend <- as.numeric(nodesNedges$xend)
       nodesNedges$yend <- as.numeric(nodesNedges$yend)
       nodesNedges$y <- as.numeric(nodesNedges$y)
@@ -435,8 +436,8 @@ visualize <- function(model, rename = F, featureMapping = NULL) {
         ggnetwork::geom_nodes(ggplot2::aes(fill = group), size = 6, shape = 21, color = 'white') +
         viridis::scale_fill_viridis('', discrete = TRUE) +
         ggplot2::theme_void()
-      
-      ggplot <- ggplotly(plot, tooltip = "text") %>%
+
+      ggplot <- plotly::ggplotly(plot, tooltip = "text") %>%
         layout(dragmode = "lasso")
       
       ggplot$x$data[[1]]$hoverinfo <- "none"
